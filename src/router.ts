@@ -5,30 +5,6 @@ import { server } from './server'
 
 const router = Router()
 
-const io = new Server(server, {
-  cors: {
-    origin: [
-      'https://quizzify-genius.vercel.app',
-      'http://localhost:3000',
-      'http://localhost:3001',
-    ],
-  },
-})
-const chat = io.of('/chat')
-chat.on('connection', (socket) => {
-  console.log('a user connected')
-  socket.on('cm', async (text, cn, ci, ci2) => {
-    await prisma.message.create({
-      data: {
-        text: text,
-        madeById: ci,
-        made: cn,
-        classesId: ci2,
-      },
-    })
-    chat.emit('mm', text, cn, ci, ci2)
-  })
-})
 router.post('/make_class', async (req, res) => {
   const newClass = await prisma.classes.create({
     data: {
@@ -111,24 +87,24 @@ router.post('/convert', async (req, res) => {
   })
   res.json(pers.username)
 })
-router.post('/create_mess', async (req, res) => {
-  const text = req.body.text
-  const mbi = req.body.mbi
-  const made = req.body.made
-  const ci = req.body.ci
-  const nm = await prisma.message.create({
-    data: {
-      text: text,
-      madeById: mbi,
-      made: made,
-      classesId: ci,
-    },
-  })
+// router.post('/create_mess', async (req, res) => {
+//   const text = req.body.text
+//   const mbi = req.body.mbi
+//   const made = req.body.made
+//   const ci = req.body.ci
+//   const nm = await prisma.message.create({
+//     data: {
+//       text: text,
+//       madeById: mbi,
+//       made: made,
+//       classesId: ci,
+//     },
+//   })
 
-  chat.emit('cm', { text, mbi, made, ci })
+//   chat.emit('cm', { text, mbi, made, ci })
 
-  res.json({ text, mbi, made, ci })
-})
+//   res.json({ text, mbi, made, ci })
+// })
 router.post('/people', async (req, res) => {
   const idTis = req.body.id
 
@@ -144,7 +120,6 @@ router.post('/people', async (req, res) => {
 })
 router.post('/full_message', async (req, res) => {
   const id = req.body.id
-  console.log(id)
 
   const wantedClass = await prisma.classes.findFirst({
     where: {
@@ -154,8 +129,6 @@ router.post('/full_message', async (req, res) => {
       mess: true,
     },
   })
-  console.log(wantedClass)
-  console.log(wantedClass.mess)
 
   res.json(wantedClass.mess)
 })

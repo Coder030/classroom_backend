@@ -42,3 +42,29 @@ console.log(port)
 server.listen(port, () => {
   console.log(`Server for socket listening on ${port}`)
 })
+import { Server } from 'socket.io'
+
+const io = new Server(server, {
+  cors: {
+    origin: [
+      'https://quizzify-genius.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ],
+  },
+})
+const chat = io.of('/chat')
+chat.on('connection', (socket) => {
+  console.log('a user connected')
+  socket.on('cm', async (text, cn, ci, ci2) => {
+    await prisma.message.create({
+      data: {
+        text: text,
+        madeById: ci,
+        made: cn,
+        classesId: ci2,
+      },
+    })
+    chat.emit('mm', text, cn, ci, ci2)
+  })
+})

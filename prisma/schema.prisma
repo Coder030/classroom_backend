@@ -12,7 +12,7 @@ model User {
   createdAt DateTime  @default(now())
   username  String    @unique
 
-
+password String
   classes   Classes[]
 }
 
