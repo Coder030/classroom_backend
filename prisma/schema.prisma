@@ -8,19 +8,31 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  username  String   @unique
-  password String @unique
-  classes Classes[]
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  username  String    @unique
+
+
+  classes   Classes[]
 }
 
 model Classes {
   name        String
-  code        String @unique
+  code        String    @unique
   class       String
   description String
   id          String    @id @unique @default(uuid())
   madeById    String
-  members      User[]
+  members     User[]
+  mess        Message[]
+}
+
+model Message {
+  text      String
+  createdOn DateTime  @default(now())
+  madeById String
+  made String
+  id        String   @id @unique @default(uuid())
+  Classes   Classes? @relation(fields: [classesId], references: [id])
+  classesId String?
 }
