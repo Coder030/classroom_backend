@@ -37,7 +37,6 @@ app.post('/make_cookie', createNewUser)
 app.post('/get_cookie', signin)
 export const server = http.createServer(app)
 const port = process.env.PORT || 2000
-console.log(port)
 
 server.listen(port, () => {
   console.log(`Server for socket listening on ${port}`)
@@ -57,6 +56,7 @@ const chat = io.of('/chat')
 chat.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('cm', async (text, cn, ci, ci2) => {
+    chat.emit('mm', text, cn, ci, ci2)
     await prisma.message.create({
       data: {
         text: text,
@@ -65,6 +65,5 @@ chat.on('connection', (socket) => {
         classesId: ci2,
       },
     })
-    chat.emit('mm', text, cn, ci, ci2)
   })
 })
