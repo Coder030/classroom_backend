@@ -55,10 +55,13 @@ const io = new Server(server, {
 const chat = io.of('/chat')
 const connectedSockets = new Map()
 chat.on('connection', async (socket) => {
+  const classId = socket.handshake.query.classId
+  console.log(classId)
+  socket.join(classId)
   console.log('a user connected')
 
   socket.on('cm', async (text, cn, ci, ci2) => {
-    chat.emit('mm', text, cn, ci, ci2)
+    chat.to(classId).emit('mm', text, cn, ci, ci2)
     await prisma.message.create({
       data: {
         text: text,
@@ -67,11 +70,6 @@ chat.on('connection', async (socket) => {
         classesId: ci2,
       },
     })
-  })
-  socket.on('set-name', (name, className) => {
-    connectedSockets.set(socket.id, { className, name })
-    const allNames = Array.from(connectedSockets.values())
-    socket.emit('find_online', allNames)
   })
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`)
